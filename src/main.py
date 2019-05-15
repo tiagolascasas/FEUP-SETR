@@ -1,21 +1,21 @@
-from Scheduler import RTScheduler, Task, SchedUtils
+import Scheduler
 import sched, time
 
 def main():
-    t1 = Task(1, 1, f1)
-    t2 = Task(1.5, 1, f2)
-    t3 = Task(1.7, 1, f3)
-    t4 = Task(0.5, 1, f4)
-    t5 = Task(0.1, 1, f5)
-    t6 = Task(2, 1, f6)
+    t1 = Scheduler.Task(1, 1, f1)
+    t2 = Scheduler.Task(1.5, 1, f2)
+    t3 = Scheduler.Task(1.7, 1, f3)
+    t4 = Scheduler.Task(0.5, 1, f4)
+    t5 = Scheduler.Task(0.1, 1, f5)
+    t6 = Scheduler.Task(2, 1, f6)
     
     s = sched.scheduler(time.monotonic_ns, time.sleep)
-    RTScheduler.sched_periodic(s, t1)
-    RTScheduler.sched_sporadic(s, t2)
-    #RTScheduler.sched_periodic(s, t3)
-    RTScheduler.sched_sporadic(s, t4)
-    RTScheduler.sched_sporadic(s, t5)
-    #RTScheduler.sched_periodic(s, t6)
+    Scheduler.sched_periodic(s, t1)
+    #Scheduler.sched_sporadic(s, t2)
+    Scheduler.sched_periodic(s, t3)
+    #Scheduler.sched_sporadic(s, t4)
+    #Scheduler.sched_sporadic(s, t5)
+    Scheduler.sched_periodic(s, t6)
     s.run()
 
 def f1():
