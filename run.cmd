@@ -1,4 +1,4 @@
 @echo off
-setlocal
+rem setlocal
 cd src
 python main.py
