@@ -4,7 +4,7 @@ __pycache__
 # Cython
 *.pyd
 *.so
-*.c
+*.cpp
 *.html
 build
-!utils.c
+!utils.cpp
