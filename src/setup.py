@@ -3,5 +3,5 @@ from Cython.Build import cythonize
 
 setup(
     ext_modules=cythonize(
-        ["scheduler.pyx", "control.pyx", "alphabot.pyx", "test.pyx"], annotate=True),
+        ["scheduler.pyx", "control.pyx", "alphabot.pyx", "test.pyx", "c_utils.pyx"], annotate=True),
 )
