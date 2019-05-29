@@ -1,2 +1,8 @@
 .vscode
 __pycache__
+
+# Cython
+*.pyd
+*.so
+*.c
+build
