@@ -1,3 +1,5 @@
+# distutils: language=c++
+
 cdef extern from "utils.cpp":
     void test()
 
