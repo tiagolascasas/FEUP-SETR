@@ -5,6 +5,7 @@ __pycache__
 *.pyd
 *.so
 *.cpp
+*.c
 *.html
 build
 !utils.cpp

@@ -5,7 +5,7 @@ Competitive game using remote-controlled AlphaBot2 kits through a Raspberry Pi
 ## Build instructions
 
 ```bash
-# Assumes python3, pip and g++ pre-installed
+# Assumes Python 3 with pip and g++ are pre-installed
 
 pip install Cython
 sudo apt-get install libncurses5-dev libncursesw5-dev

@@ -1,33 +1,88 @@
 # distutils: language = c++
-import curses, inspect, sys, signal
-from scheduler import Task, create_scheduler, sched_sporadic
+import curses, inspect, sys, signal, socket
+from scheduler import Task, create_scheduler, sched_sporadic, sched_periodic
 from libcpp.queue cimport queue
 
+# Global constants
+ALPHABOT_1_IP = "127.0.0.1"
+ALPHABOT_2_IP = "127.0.0.1"
+ALPHABOT_PORT = 13450
+
 # Global variables
-screen = curses.initscr()
-cdef queue[char] buff
+screen = None
+cdef queue[char] buff_1
+cdef queue[char] buff_2
+socket_1 = None
+socket_2 = None
 
 # Init
 def main():
     init()
 
     t1 = Task(0.01, 1, task_read_from_keyboard, None)
+    t2 = Task(0.03, 1, task_send_to_alphabot, 1)
+    t3 = Task(0.03, 1, task_send_to_alphabot, 2)
 
     sched = create_scheduler()
     sched_sporadic(sched, t1)
+    sched_periodic(sched, t2)
+    sched_periodic(sched, t3)
     sched.run()
 
 def init():
+    global screen
+    global socket_1
+    global socket_2
+
+    screen = curses.initscr()
     screen.nodelay(True)
+    curses.initscr()
     curses.noecho()
     curses.cbreak()
+
     signal.signal(signal.SIGINT, signal_handler)
+
+    socket_1 = create_udp_socket()
+    socket_2 = create_udp_socket()
 
 # Task functions
 def task_read_from_keyboard(arg):
     key = screen.getch()
     if key > -1:
-        buff.push(key)
+        c = chr(key)
+        if c == 'w' or c == 'a' or c == 's' or c == 'd' or c == 'q':
+            buff_1.push(key)
+            print(key)
+        if c == 'i' or c == 'j' or c == 'k' or c == 'l' or c == 'o':
+            buff_2.push(key)
+            print(key)
+
+def task_send_to_alphabot(alphabot):
+    ip = ALPHABOT_1_IP if alphabot == 1 else ALPHABOT_2_IP
+    sock = socket_1 if alphabot == 1 else socket_2
+    msg = ""
+
+    if alphabot == 1:
+        if buff_1.empty():
+            return
+    
+        while not buff_1.empty():
+            key = buff_1.front()
+            msg += str(key)
+            buff_1.pop()
+    elif alphabot == 2:
+        if buff_2.empty():
+            return
+    
+        while not buff_2.empty():
+            key = buff_2.front()
+            msg += str(key)
+            buff_2.pop()
+
+    try:
+        sock.sendto(bytes(msg, 'utf-8'), (ip, ALPHABOT_PORT))
+    except socket.error:
+        pass
 
 # Helper functions
 def signal_handler(sig, frame):
@@ -36,6 +91,14 @@ def signal_handler(sig, frame):
         curses.nocbreak()
         curses.endwin()
         sys.exit(0)
+
+def create_udp_socket():
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        return sock
+    except socket.error:
+        pass
+
 
 if __name__ == "__main__":
     main()
