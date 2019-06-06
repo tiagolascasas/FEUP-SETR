@@ -5,8 +5,7 @@ GPIO = None
 d = distro.linux_distribution(full_distribution_name=False)[0]
 
 if d == 'raspbian':
-    import RPi
-    GPIO = RPi.GPIO
+    import RPi.GPIO as GPIO
 else:
     import fake_rpi
     GPIO = fake_rpi.RPi.GPIO
