@@ -5,8 +5,10 @@ import socket
 import utils
 import alphabot_hpi
 import random
+from functools import partial
 from scheduler import Task, create_scheduler, sched_sporadic, sched_periodic
 from libcpp.queue cimport queue
+from queue import *
 
 # Global constants
 ALPHABOT_PORT = 13450
@@ -23,6 +25,8 @@ LOW_SPEED_PROBABILITY = 5
 
 # Global variables
 cdef queue[char] buff
+cdef queue[char] events
+
 can_move = True
 
 ## high_speed_state = False
@@ -41,6 +45,7 @@ hpi = None
 
 
 def main():
+    print("Starting AlphaBot2 program...")
     init()
 
     sched = create_scheduler()
@@ -48,10 +53,12 @@ def main():
     t1 = Task(0.05, 5, task_read_from_socket, None)
     t2 = Task(0.1, 5, task_process_command, None)
     t3 = Task(0.05, 5, task_check_collision_sensor, sched)
+    t4 = Task(0.1, 5, task_aperiodic_task_server, None)
 
     sched_sporadic(sched, t1)
     sched_periodic(sched, t2)
     sched_periodic(sched, t3)
+    sched_periodic(sched, t4)
     sched.run()
 
 
@@ -115,12 +122,23 @@ def task_check_collision_sensor(scheduler):
     if hpi.detect_collisions():
         hpi.set_beep(True)
         can_move = False
+        register_aperiodic_task(1, 1.0)
 
 
 def task_reactivate_motion(arg):
     hpi.set_beep(False)
     can_move = True
 
+def task_aperiodic_task_server(arg):
+    if events.empty():
+        return
+    
+    event = events.front()
+    events.pop()
+    
+    if event == 1:
+        # send to scheduler as aperiodic task?
+        task_reactivate_motion(None)
 
 ## def task_rng_low_speed():
 ##     if low_speed_state and timer_low_speed_cooldown < 0:
@@ -145,6 +163,13 @@ def task_reactivate_motion(arg):
 def signal_handler(sig, frame):
     print('Ending AlphaBot2 program...')
     sys.exit(0)
+    
+def register_aperiodic_task(func_id, delta):
+    signal.signal(signal.SIGALRM, partial(enqueue_task, func_id))
+    signal.setitimer(signal.ITIMER_REAL, delta)
+
+def enqueue_task(func_id, signum, frame):
+    events.push(func_id)
 
 
 ## def clear_low_speed_variables():
