@@ -1,5 +1,5 @@
-# distutils: language = c++
-import curses, inspect, sys, signal, socket
+# distutils: language=c++
+import curses, sys, signal, socket, utils
 from scheduler import Task, create_scheduler, sched_sporadic, sched_periodic
 from libcpp.queue cimport queue
 
@@ -42,8 +42,8 @@ def init():
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    socket_1 = create_udp_socket()
-    socket_2 = create_udp_socket()
+    socket_1 = utils.create_udp_socket()
+    socket_2 = utils.create_udp_socket()
 
 # Task functions
 def task_read_from_keyboard(arg):
@@ -68,7 +68,7 @@ def task_send_to_alphabot(alphabot):
     
         while not buff_1.empty():
             key = buff_1.front()
-            msg += str(key)
+            msg += chr(key)
             buff_1.pop()
     elif alphabot == 2:
         if buff_2.empty():
@@ -76,9 +76,9 @@ def task_send_to_alphabot(alphabot):
     
         while not buff_2.empty():
             key = buff_2.front()
-            msg += str(key)
+            msg += chr(key)
             buff_2.pop()
-
+            
     try:
         sock.sendto(bytes(msg, 'utf-8'), (ip, ALPHABOT_PORT))
     except socket.error:
@@ -91,13 +91,6 @@ def signal_handler(sig, frame):
         curses.nocbreak()
         curses.endwin()
         sys.exit(0)
-
-def create_udp_socket():
-    try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        return sock
-    except socket.error:
-        pass
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ import signal
 import sys
 import time
 import functools
-cimport c_utils
+cimport cpp_utils
 
 task_times = {}
 times_record = {}
@@ -44,10 +44,10 @@ def init():
 
 def task_debug(id):
     if id not in task_times:
-        task_times[id] = c_utils.timer_monotonic()
+        task_times[id] = cpp_utils.timer_monotonic()
     else:
-        d = c_utils.timer_monotonic() - task_times[id]
-        task_times[id] = c_utils.timer_monotonic()
+        d = cpp_utils.timer_monotonic() - task_times[id]
+        task_times[id] = cpp_utils.timer_monotonic()
         print("Task %s: %s" % (id, round(d * 1000)))
         if id not in times_record:
             times_record[id] = []
@@ -68,10 +68,10 @@ def signal_handler(sig, frame):
 
 def test_timers():
     print(time.monotonic())
-    print(c_utils.timer_monotonic())
+    print(cpp_utils.timer_monotonic())
     time.sleep(1)
     print(time.monotonic())
-    print(c_utils.timer_monotonic())
+    print(cpp_utils.timer_monotonic())
     sys.exit(0)
 
 if __name__ == "__main__":

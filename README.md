@@ -13,6 +13,6 @@ cd src
 sh build.sh
 ```
 
-To start the program running on the AlphaBots, run ```python3 start_alphabot.py```
+To start the program running on the AlphaBots, run ```python3 start_alphabot.py```, or ```alphabot.py``` to both build and run
 
-To start the program running on the control RPi, run ```python3 start_control.py```
+To start the program running on the control RPi, run ```python3 start_control.py```, or ```control.py``` to both build and run

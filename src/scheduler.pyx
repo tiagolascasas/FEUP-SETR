@@ -1,12 +1,12 @@
 import sched, time
-cimport c_utils
+cimport cpp_utils
 
 # Models periodic, sporadic and aperiodic tasks using
 # Python's generic EDF scheduler. See implementation:
 # https://github.com/python/cpython/blob/3.7/Lib/sched.py
 
 def create_scheduler():
-    return sched.scheduler(c_utils.timer_monotonic, time.sleep)
+    return sched.scheduler(cpp_utils.timer_monotonic, time.sleep)
 
 def sched_periodic(scheduler, task):
     scheduler.enterabs(task.delta, task.priority, sched_sporadic,

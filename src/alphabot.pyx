@@ -1,32 +1,61 @@
-#cimport c_utils
+# distutils: language=c++
+import sys, signal, socket, utils
+from scheduler import Task, create_scheduler, sched_sporadic, sched_periodic
+from libcpp.queue cimport queue
 
+# Global constants
+ALPHABOT_PORT = 13450
+CONTROLLER_IP = "127.0.0.1"
+MESSAGE_SIZE = 500
+
+# Global variables
+cdef queue[char] buff
 can_move = True
-#declare queue
+sock = None
+hpi = None
 
 def main():
-    setup()
+    init()
     
-    #create schedule
-    #create tasks
-    #schedule tasks
-    #while True:
-    #    print("Alphabot running")
-    #    c_utils.test()
-        
-def setup():
-    # Open socket
-    # Configure sensor pins
-    pass
-        
-def task_read_from_socket():
-    #read from socket non-blocking
-    #put in queue
-    pass
+    t1 = Task(0.05, 1, task_read_from_socket, None)
+    t2 = Task(0.05, 1, task_process_command, None)
+    #t3 = Task(0.03, 1, task_send_to_alphabot, 2)
 
-def task_process_command():
-    #read from queue
-    #process command
-    pass
+    sched = create_scheduler()
+    sched_sporadic(sched, t1)
+    sched_periodic(sched, t2)
+    sched.run()
+        
+def init():
+    global hpi
+    global sock
+
+    #hpi = alphabot_hpi.AlphaBot2()
+    sock = utils.create_bind_udp_socket(CONTROLLER_IP, ALPHABOT_PORT)
+
+    signal.signal(signal.SIGINT, signal_handler)
+
+# Task function
+def task_read_from_socket(arg):
+    msg = ""
+
+    try:
+        data, _ = sock.recvfrom(MESSAGE_SIZE)
+        msg = data.decode('utf-8')
+    except socket.error:
+        pass
+
+    for c in msg:
+        print(c)
+        buff.push(ord(c))
+
+def task_process_command(arg):
+    if buff.empty():
+        return
+    
+    c = buff.front()
+    buff.pop()
+    #print(c)
 
 def task_check_collision_sensor(scheduler):
     #check collision sensor
@@ -36,3 +65,12 @@ def task_check_collision_sensor(scheduler):
 def task_reactivate_motion():
     can_move = True
     #disable beep
+
+# Helper functions
+def signal_handler(sig, frame):
+        print('Ending AlphaBot2 program...')
+        sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
