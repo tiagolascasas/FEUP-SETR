@@ -17,13 +17,15 @@ hpi = None
 def main():
     init()
     
-    t1 = Task(0.05, 1, task_read_from_socket, None)
-    t2 = Task(0.05, 1, task_process_command, None)
-    #t3 = Task(0.03, 1, task_send_to_alphabot, 2)
-
     sched = create_scheduler()
+
+    t1 = Task(0.05, 5, task_read_from_socket, None)
+    t2 = Task(0.1, 5, task_process_command, None)
+    t3 = Task(0.05, 5, task_check_collision_sensor, sched)
+
     sched_sporadic(sched, t1)
     sched_periodic(sched, t2)
+    sched_periodic(sched, t3)
     sched.run()
         
 def init():
@@ -58,23 +60,28 @@ def task_process_command(arg):
 
     if c == 'a' or c == 'j':
         hpi.left()
+        print("Left")
     if c == 's' or c == 'k':
         hpi.backward()
+        print("Backward")
     if c == 'd' or c == 'l':
         hpi.right()
+        print("Right")
     if c == 'w' or c == 'i':
         hpi.forward()
+        print("Forward")
     
-
-
 def task_check_collision_sensor(scheduler):
-    #check collision sensor
-    #if collision, deactivate motion and schedule reactivation task and activate beep
-    pass
+    if not can_move:
+        return
+    if hpi.detect_collisions():
+        hpi.set_beep(True)
+        can_move = False
 
-def task_reactivate_motion():
+def task_reactivate_motion(arg):
+    hpi.set_beep(False)
     can_move = True
-    #disable beep
+    
 
 # Helper functions
 def signal_handler(sig, frame):
