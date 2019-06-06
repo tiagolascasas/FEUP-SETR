@@ -14,12 +14,18 @@ from queue import *
 ALPHABOT_PORT = 13450
 CONTROLLER_IP = "127.0.0.1"
 MESSAGE_SIZE = 500
-MOVES = ['w', 'a', 's', 'd', 'i', 'j', 'k', 'l', 'q',
-         'o', 'W', 'A', 'S', 'D', 'I', 'J', 'K', 'L', 'Q', 'O']
+MOVES = ['w', 'a', 's', 'd', 'i', 'j', 'k', 'l', 'q', 'e', 'o', 'u'
+            'W', 'A', 'S', 'D', 'I', 'J', 'K', 'L', 'Q', 'O', 'E', 'U']
 
 LOW_SPEED = 30
 MEDIUM_SPEED = 50
 HIGH_SPEED = 80
+
+HIGH_SPEED_TIME = 3.0
+HIGH_SPEED_CD = 7.0
+
+LOW_SPEED_TIME = 3.0
+LOW_SPEED_CD = 3.0
 
 LOW_SPEED_PROBABILITY = 5
 
@@ -29,19 +35,13 @@ cdef queue[char] events
 
 can_move = True
 
-## high_speed_state = False
-## low_speed_state = False
-## timer_high_speed_state = 0
-## timer_low_speed_state = 0
-## timer_high_speed_cooldown = 0
-## timer_low_speed_cooldown = 0
+high_speed_state = False
+low_speed_state = False
+
 
 sock = None
 hpi = None
 
-# TODO TASK COM PROBABILIDADE DE FICAR LENTO
-# TODO TASK PARA VOLTAR A POR A VELOCIDADE NORMAL
-# TODO TASK PARA REACTIVE MOTION
 
 
 def main():
@@ -50,15 +50,17 @@ def main():
 
     sched = create_scheduler()
 
-    t1 = Task(0.05, 5, task_read_from_socket, None)
-    t2 = Task(0.1, 5, task_process_command, None)
-    t3 = Task(0.05, 5, task_check_collision_sensor, sched)
-    t4 = Task(0.1, 5, task_aperiodic_task_server, None)
+    t1 = Task(5, 4, task_read_from_socket, None)
+    t2 = Task(10, 5, task_process_command, None)
+    t3 = Task(5, 3, task_check_collision_sensor, sched)
+    t4 = Task(10, 2, task_aperiodic_task_server, None)
+    t5 = Task(2000, 2, task_rng_low_speed, None)
 
     sched_sporadic(sched, t1)
     sched_periodic(sched, t2)
     sched_periodic(sched, t3)
     sched_periodic(sched, t4)
+    sched_periodic(sched, t5)
     sched.run()
 
 
@@ -90,6 +92,9 @@ def task_read_from_socket(arg):
 
 
 def task_process_command(arg):
+    global high_speed_state
+    global low_speed_state
+
     if buff.empty():
         return
 
@@ -108,11 +113,15 @@ def task_process_command(arg):
     elif c.upper() == 'W' or c.upper() == 'I':
         hpi.forward()
         print("Forward")
-    elif c.upper() == 'O' or c.upper() == 'Q':  # and not high_speed_state #and timer_high_speed_cooldown<0
+    elif c.upper() == 'E' or c.upper() == 'U':
+        hpi.stop()
+        print("STOP")
+    elif (c.upper() == 'O' or c.upper() == 'Q') and not high_speed_state: 
         hpi.set_speed(HIGH_SPEED)
-        # high_speed_state=True
-        # timer_high_speed_state-= 0 ##start timer
-        # clear_low_speed_variables()
+        register_aperiodic_task(2, HIGH_SPEED_TIME)
+        high_speed_state=True
+        low_speed_state=False
+        print("HIGH_SPEED")
 
 
 def task_check_collision_sensor(scheduler):
@@ -139,25 +148,50 @@ def task_aperiodic_task_server(arg):
     if event == 1:
         # send to scheduler as aperiodic task?
         task_reactivate_motion(None)
+    elif event == 2: 
+        task_end_high_speed_state(None)
+    elif event == 3: 
+        task_end_high_speed_cd(None) 
+    elif event == 4: 
+        task_end_low_speed_state(None)
+    elif event == 5: 
+        task_end_low_speed_cd(None) 
 
-## def task_rng_low_speed():
-##     if low_speed_state and timer_low_speed_cooldown < 0:
-##         return
-##     if not low_speed_state and random.random() * 100 >= 100 - LOW_SPEED_PROBABILITY:
-##         low_speed_state = True
-##         times_low_speed_state -= 0  # Start a timer
-##         hpi.set_speed(LOW_SPEED)
-##         clear_high_speed_variables()
+
+def task_end_high_speed_state(arg):
+    global high_speed_state
+    if high_speed_state:
+        hpi.set_speed(MEDIUM_SPEED)
+        register_aperiodic_task(3, HIGH_SPEED_CD)
+        print("ENDHIGHSPEED")
+
+def task_end_high_speed_cd(arg):
+    global high_speed_state
+    high_speed_state=False
+    print("ENDHIGHSPEEDCD")
+
+def task_rng_low_speed(arg):
+    global low_speed_state
+    global high_speed_state
+    random_number = random.random() * 100
+    if not low_speed_state and random_number < LOW_SPEED_PROBABILITY:
+        high_speed_state=False
+        low_speed_state=True
+        hpi.set_speed(LOW_SPEED)
+        register_aperiodic_task(4, LOW_SPEED_TIME)
+        print("LOWSPEED")
 
 
-## def task_update_speed_variables():
-##     if high_speed_state:  # and timer_high_speed_state + time.now > 0
-##         clear_high_speed_variables()
-##         # update cooldown
-##     if low_speed_state:  # and timer_high_speed_state + time.now > 0
-##         clear_low_speed_variables()
-##         # update cooldown
+def task_end_low_speed_state(arg):
+    if low_speed_state:
+        hpi.set_speed(MEDIUM_SPEED)
+        register_aperiodic_task(5, LOW_SPEED_CD)
+        print("ENDLOWSPEED")
 
+def task_end_low_speed_cd(arg):
+    global low_speed_state
+    low_speed_state=False
+    print("ENDLOWSPEEDCD")
 
 # Helper functions
 def signal_handler(sig, frame):
@@ -170,16 +204,6 @@ def register_aperiodic_task(func_id, delta):
 
 def enqueue_task(func_id, signum, frame):
     events.push(func_id)
-
-
-## def clear_low_speed_variables():
-##     low_speed_state = False
-##     timer_low_speed_state = 0
-
-
-## def clear_high_speed_variables():
-##     high_speed_state = False
-##     timer_high_speed_state = 0
 
 
 if __name__ == "__main__":
