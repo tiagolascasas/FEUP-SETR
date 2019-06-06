@@ -7,7 +7,8 @@ from libcpp.queue cimport queue
 ALPHABOT_1_IP = "127.0.0.1"
 ALPHABOT_2_IP = "127.0.0.1"
 ALPHABOT_PORT = 13450
-
+MOVES_1 = ['w', 'a', 's', 'd', 'q','W', 'A', 'S', 'D', 'Q']
+MOVES_2 = ['i', 'j', 'k', 'l', 'o', 'O','I', 'J', 'K', 'L']
 # Global variables
 screen = None
 cdef queue[char] buff_1
@@ -50,10 +51,10 @@ def task_read_from_keyboard(arg):
     key = screen.getch()
     if key > -1:
         c = chr(key)
-        if c == 'w' or c == 'a' or c == 's' or c == 'd' or c == 'q':
+        if c in MOVES_1:
             buff_1.push(key)
             print(key)
-        if c == 'i' or c == 'j' or c == 'k' or c == 'l' or c == 'o':
+        if c in MOVES_2:
             buff_2.push(key)
             print(key)
 
