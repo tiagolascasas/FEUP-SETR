@@ -11,14 +11,15 @@ MOVES = ['w', 'a', 's', 'd', 'i', 'j', 'k', 'l', 'q', 'o','W', 'A', 'S', 'D', 'I
 LOW_SPEED = 30
 MEDIUM_SPEED = 50
 HIGH_SPEED = 80
+LOW_SPEED_PROBABILITY = 5
 
 # Global variables
 cdef queue[char] buff
 can_move = True
 high_speed_state=False
 low_speed_state=False
-timer_high_speed_state=False
-times_low_speed_state=False
+timer_high_speed_state=0
+timer_low_speed_state=0
 sock = None
 hpi = None
 
@@ -84,6 +85,10 @@ def task_process_command(arg):
         print("Forward")
     elif c.upper() == 'O' or c.upper()=='Q':
         hpi.set_speed(HIGH_SPEED)
+        #high_speed_state=True
+        #timer_high_speed_state-= 0 ##start timer
+        #clear_low_speed_variables()
+
     
 def task_check_collision_sensor(scheduler):
     if not can_move:
@@ -95,12 +100,35 @@ def task_check_collision_sensor(scheduler):
 def task_reactivate_motion(arg):
     hpi.set_beep(False)
     can_move = True
+
+def task_rng_low_speed():
+    if not low_speed_state and random.random() * 100 >= 100 - LOW_SPEED_PROBABILITY:
+        low_speed_state=True
+        times_low_speed_state -= 0 ##Start a timer
+        hpi.set_speed(LOW_SPEED)
+        clear_high_speed_variables()
+    
+def task_update_speed_variables():
+    if(high_speed_state) ## and timer_high_speed_state + time.now > 0
+        clear_high_speed_variables()
+    if(low_speed_state)  ## and timer_high_speed_state + time.now > 0
+        clear_low_speed_variables
+
+
     
 
 # Helper functions
 def signal_handler(sig, frame):
         print('Ending AlphaBot2 program...')
         sys.exit(0)
+
+def clear_low_speed_variables():
+    low_speed_state=False
+    timer_low_speed_state=0
+
+def clear_high_speed_variables():
+    high_speed_state=False
+    timer_high_speed_state=0
 
 
 if __name__ == "__main__":
