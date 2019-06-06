@@ -1,5 +1,5 @@
 # distutils: language=c++
-import sys, signal, socket, utils
+import sys, signal, socket, utils, alphabot_hpi
 from scheduler import Task, create_scheduler, sched_sporadic, sched_periodic
 from libcpp.queue cimport queue
 
@@ -30,7 +30,7 @@ def init():
     global hpi
     global sock
 
-    #hpi = alphabot_hpi.AlphaBot2()
+    hpi = alphabot_hpi.AlphaBot2()
     sock = utils.create_bind_udp_socket(CONTROLLER_IP, ALPHABOT_PORT)
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -53,9 +53,19 @@ def task_process_command(arg):
     if buff.empty():
         return
     
-    c = buff.front()
+    c = chr(buff.front())
     buff.pop()
-    #print(c)
+
+    if c == 'a' or c == 'j':
+        hpi.left()
+    if c == 's' or c == 'k':
+        hpi.backward()
+    if c == 'd' or c == 'l':
+        hpi.right()
+    if c == 'w' or c == 'i':
+        hpi.forward()
+    
+
 
 def task_check_collision_sensor(scheduler):
     #check collision sensor
