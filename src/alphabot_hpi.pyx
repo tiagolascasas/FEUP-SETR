@@ -12,6 +12,7 @@ else:
     GPIO = fake_rpi.RPi.GPIO
     fake_rpi.toggle_print(False)
 
+
 class AlphaBot2(object):
     
     def __init__(self,ain1=12,ain2=13,ena=6,bin1=20,bin2=21,enb=26):
@@ -99,7 +100,11 @@ class AlphaBot2(object):
 
     def set_PWMB(self,value):
         self.PB = value
-        self.PWMB.ChangeDutyCycle(self.PB)    
+        self.PWMB.ChangeDutyCycle(self.PB)
+
+    def set_speed(self, value):
+         self.set_PWMA(value)
+         self.set_PWMB(value)   
         
     def set_motor(self, left, right):
         if((right >= 0) and (right <= 100)):

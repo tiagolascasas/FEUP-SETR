@@ -7,13 +7,24 @@ from libcpp.queue cimport queue
 ALPHABOT_PORT = 13450
 CONTROLLER_IP = "127.0.0.1"
 MESSAGE_SIZE = 500
+MOVES = ['w', 'a', 's', 'd', 'i', 'j', 'k', 'l', 'q', 'o','W', 'A', 'S', 'D', 'I', 'J', 'K', 'L','Q', 'O']
+LOW_SPEED = 30
+MEDIUM_SPEED = 50
+HIGH_SPEED = 80
 
 # Global variables
 cdef queue[char] buff
 can_move = True
+high_speed_state=False
+low_speed_state=False
+timer_high_speed_state=False
+times_low_speed_state=False
 sock = None
 hpi = None
 
+##TODO TASK COM PROBABILIDADE DE FICAR LENTO
+##TODO TASK PARA VOLTAR A POR A VELOCIDADE NORMAL
+##TODO TASK PARA REACTIVE MOTION
 def main():
     init()
     
@@ -44,12 +55,13 @@ def task_read_from_socket(arg):
     try:
         data, _ = sock.recvfrom(MESSAGE_SIZE)
         msg = data.decode('utf-8')
+
     except socket.error:
         pass
 
     for c in msg:
-        print(c)
-        buff.push(ord(c))
+        if (c in MOVES):
+            buff.push(ord(c))
 
 def task_process_command(arg):
     if buff.empty():
@@ -58,18 +70,20 @@ def task_process_command(arg):
     c = chr(buff.front())
     buff.pop()
 
-    if c == 'a' or c == 'j':
+    if c.upper() == 'A' or c.upper() == 'J':
         hpi.left()
         print("Left")
-    if c == 's' or c == 'k':
+    elif c.upper() == 'S' or c.upper() == 'K':
         hpi.backward()
         print("Backward")
-    if c == 'd' or c == 'l':
+    elif c.upper() == 'D' or c.upper() == 'L':
         hpi.right()
         print("Right")
-    if c == 'w' or c == 'i':
+    elif c.upper() == 'W' or c.upper() == 'I':
         hpi.forward()
         print("Forward")
+    elif c.upper() == 'O' or c.upper()=='Q':
+        hpi.set_speed(HIGH_SPEED)
     
 def task_check_collision_sensor(scheduler):
     if not can_move:
