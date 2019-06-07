@@ -29,7 +29,14 @@ sudo hostnamectl set-hostname RASP-ALPHABOTX
 If the cloud-init package is installed you also need to edit the cloud.cfg file.
 sudo nano /etc/cloud/cloud.cfg 
 Search for preserve_hostname and change the value from false to true
+Reboot computers being used
+Test
+If it doesn't work
 
-sudo dhclient -r
+Release your ip:
+sudo dhclient -r 
+Ask for a new one:
+sudo dhclient
 
-reset computers being used
+If after this the ip stays the same, repeat de process.
+Test
