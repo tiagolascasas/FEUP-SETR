@@ -20,4 +20,7 @@ def create_bind_udp_socket(ip_address, port):
         pass
 
 def getAlphabotIP(hostname):
-    return socket.gethostbyname(hostname)
+    try:
+        return socket.gethostbyname(hostname)
+    except socket.error:
+        print(hostname, "not found")
