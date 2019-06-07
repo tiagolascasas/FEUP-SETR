@@ -12,7 +12,7 @@ from queue import *
 
 # Global constants
 ALPHABOT_PORT = 13450
-CONTROLLER_IP = "127.0.0.1"
+CONTROLLER_IP = utils.getLocalIP()
 MESSAGE_SIZE = 500
 MOVES = ['w', 'a', 's', 'd', 'i', 'j', 'k', 'l', 'q', 'e', 'o', 'u'
             'W', 'A', 'S', 'D', 'I', 'J', 'K', 'L', 'Q', 'O', 'E', 'U']
@@ -122,7 +122,6 @@ def task_process_command(arg):
         high_speed_state=True
         low_speed_state=False
         print("HIGH_SPEED")
-
 
 def task_check_collision_sensor(scheduler):
     global can_move

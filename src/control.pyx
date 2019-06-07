@@ -8,8 +8,8 @@ from scheduler import Task, create_scheduler, sched_sporadic, sched_periodic
 from libcpp.queue cimport queue
 
 # Global constants
-ALPHABOT_1_IP = "127.0.0.1"
-ALPHABOT_2_IP = "127.0.0.1"
+ALPHABOT_1_IP = utils.getAlphabotIP("RASP-ALPHABOT1")
+ALPHABOT_2_IP = utils.getAlphabotIP("RASP-ALPHABOT2")
 ALPHABOT_PORT = 13450
 MOVES_1 = ['w', 'a', 's', 'd', 'q', 'W', 'A', 'S', 'D', 'Q', 'e', 'E']
 MOVES_2 = ['i', 'j', 'k', 'l', 'o', 'O', 'I', 'J', 'K', 'L', 'U', 'u']

@@ -18,3 +18,6 @@ def create_bind_udp_socket(ip_address, port):
         return sock
     except socket.error:
         pass
+
+def getAlphabotIP(hostname):
+    return socket.gethostbyname(hostname)
