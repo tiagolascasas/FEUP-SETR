@@ -94,12 +94,18 @@ def task_read_from_socket(arg):
 def task_process_command(arg):
     global high_speed_state
     global low_speed_state
+    global can_move
 
     if buff.empty():
         return
 
     c = chr(buff.front())
     buff.pop()
+    
+    if not can_move:
+        hpi.backward()
+        print("Backwards in beep")
+        return
 
     if c.upper() == 'A' or c.upper() == 'J':
         hpi.left()
@@ -134,8 +140,10 @@ def task_check_collision_sensor(scheduler):
 
 
 def task_reactivate_motion(arg):
+    global can_move
     hpi.set_beep(False)
     can_move = True
+    hpi.stop()
 
 def task_aperiodic_task_server(arg):
     if events.empty():
@@ -145,7 +153,6 @@ def task_aperiodic_task_server(arg):
     events.pop()
     
     if event == 1:
-        # send to scheduler as aperiodic task?
         task_reactivate_motion(None)
     elif event == 2: 
         task_end_high_speed_state(None)
