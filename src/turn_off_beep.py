@@ -5,18 +5,8 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(BUZ,GPIO.OUT)
 GPIO.output(BUZ, GPIO.LOW)'''
 
-import distro
+import RPi.GPIO as GPIO
 
-GPIO = None
-
-d = distro.linux_distribution(full_distribution_name=False)[0]
-
-if d == 'raspbian':
-    import RPi.GPIO as GPIO
-else:
-    import fake_rpi
-    GPIO = fake_rpi.RPi.GPIO
-    fake_rpi.toggle_print(False)
 
 
 class AlphaBot2(object):
@@ -142,6 +132,7 @@ class AlphaBot2(object):
         DL_status = GPIO.input(self.DL)
         return (DL_status == 0) or (DR_status == 0)
 
+
 hpi = AlphaBot2()
 hpi.set_beep(False)
 hpi.stop()
@@ -150,3 +141,4 @@ while i > 0:
     hpi.forward()
     i = i - 1
 hpi.stop()
+GPIO.cleanup()

@@ -31,7 +31,7 @@ class AlphaBot2(object):
         self.DL = 19
         self.PA  = 50
         self.PB  = 50
-        self.ROTATE_VELOCITY= 15
+        self.ROTATE_VELOCITY= 22
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
@@ -134,3 +134,6 @@ class AlphaBot2(object):
         DR_status = GPIO.input(self.DR)
         DL_status = GPIO.input(self.DL)
         return (DL_status == 0) or (DR_status == 0)
+    
+    def cleanup(self):
+        GPIO.cleanup()

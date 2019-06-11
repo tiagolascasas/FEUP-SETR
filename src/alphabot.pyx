@@ -95,17 +95,19 @@ def task_process_command(arg):
     global high_speed_state
     global low_speed_state
     global can_move
-
-    if buff.empty():
-        return
-
-    c = chr(buff.front())
-    buff.pop()
+    c = ''
     
-    if not can_move:
-        hpi.backward()
-        print("Backwards in beep")
-        return
+    if buff.empty():
+        if can_move:
+            return
+        else:
+            c='S'
+    else:
+        if can_move:
+            c = chr(buff.front())
+        else:
+            c = 'S'
+        buff.pop()     
 
     if c.upper() == 'A' or c.upper() == 'J':
         hpi.left()
@@ -202,6 +204,7 @@ def task_end_low_speed_cd(arg):
 # Helper functions
 def signal_handler(sig, frame):
     print('Ending AlphaBot2 program...')
+    hpi.cleanup()
     sys.exit(0)
     
 def register_aperiodic_task(func_id, delta):
