@@ -26,9 +26,9 @@ socket_2 = None
 def main():
     init()
 
-    t1 = Task(0.01, 1, task_read_from_keyboard, None)
-    t2 = Task(0.03, 1, task_send_to_alphabot, 1)
-    t3 = Task(0.03, 1, task_send_to_alphabot, 2)
+    t1 = Task(10, 1, task_read_from_keyboard, None)
+    t2 = Task(50, 1, task_send_to_alphabot, 1)
+    t3 = Task(50, 1, task_send_to_alphabot, 2)
 
     sched = create_scheduler()
     sched_sporadic(sched, t1)

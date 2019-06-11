@@ -31,6 +31,7 @@ class AlphaBot2(object):
         self.DL = 19
         self.PA  = 50
         self.PB  = 50
+        self.ROTATE_VELOCITY= 15
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
@@ -77,8 +78,8 @@ class AlphaBot2(object):
 
         
     def left(self):
-        self.PWMA.ChangeDutyCycle(30)
-        self.PWMB.ChangeDutyCycle(30)
+        self.PWMA.ChangeDutyCycle(self.ROTATE_VELOCITY)
+        self.PWMB.ChangeDutyCycle(self.ROTATE_VELOCITY)
         GPIO.output(self.AIN1,GPIO.HIGH)
         GPIO.output(self.AIN2,GPIO.LOW)
         GPIO.output(self.BIN1,GPIO.LOW)
@@ -86,8 +87,8 @@ class AlphaBot2(object):
 
 
     def right(self):
-        self.PWMA.ChangeDutyCycle(30)
-        self.PWMB.ChangeDutyCycle(30)
+        self.PWMA.ChangeDutyCycle(self.ROTATE_VELOCITY)
+        self.PWMB.ChangeDutyCycle(self.ROTATE_VELOCITY)
         GPIO.output(self.AIN1,GPIO.LOW)
         GPIO.output(self.AIN2,GPIO.HIGH)
         GPIO.output(self.BIN1,GPIO.HIGH)

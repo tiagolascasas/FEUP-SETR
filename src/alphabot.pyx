@@ -50,11 +50,11 @@ def main():
 
     sched = create_scheduler()
 
-    t1 = Task(5, 4, task_read_from_socket, None)
-    t2 = Task(10, 5, task_process_command, None)
-    t3 = Task(5, 3, task_check_collision_sensor, sched)
-    t4 = Task(10, 2, task_aperiodic_task_server, None)
-    t5 = Task(2000, 2, task_rng_low_speed, None)
+    t1 = Task(50, 2, task_read_from_socket, None) #20
+    t2 = Task(10, 1, task_process_command, None) #10
+    t3 = Task(300, 3, task_check_collision_sensor, sched) #40
+    t4 = Task(25, 3, task_aperiodic_task_server, None) #25
+    t5 = Task(2000, 4, task_rng_low_speed, None)
 
     sched_sporadic(sched, t1)
     sched_periodic(sched, t2)
