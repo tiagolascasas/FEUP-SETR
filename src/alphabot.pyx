@@ -14,7 +14,7 @@ from queue import *
 ALPHABOT_PORT = 13450
 CONTROLLER_IP = utils.getLocalIP()
 MESSAGE_SIZE = 500
-MOVES = ['w', 'a', 's', 'd', 'i', 'j', 'k', 'l', 'q', 'e', 'o', 'u'
+MOVES = ['w', 'a', 's', 'd', 'i', 'j', 'k', 'l', 'q', 'e', 'o', 'u',
             'W', 'A', 'S', 'D', 'I', 'J', 'K', 'L', 'Q', 'O', 'E', 'U']
 
 LOW_SPEED = 30
