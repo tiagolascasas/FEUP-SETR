@@ -52,7 +52,7 @@ def main():
 
     t1 = Task(50, 2, task_read_from_socket, None) #20
     t2 = Task(10, 1, task_process_command, None) #10
-    t3 = Task(300, 3, task_check_collision_sensor, sched) #40
+    t3 = Task(30, 3, task_check_collision_sensor, sched) #40
     t4 = Task(25, 3, task_aperiodic_task_server, None) #25
     t5 = Task(2000, 4, task_rng_low_speed, None)
 
