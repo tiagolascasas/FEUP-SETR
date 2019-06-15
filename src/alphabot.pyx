@@ -9,6 +9,7 @@ from functools import partial
 from scheduler import Task, create_scheduler, sched_sporadic, sched_periodic
 from libcpp.queue cimport queue
 from queue import *
+cimport cpp_utils
 
 # Global constants
 ALPHABOT_PORT = 13450
@@ -38,16 +39,14 @@ can_move = True
 high_speed_state = False
 low_speed_state = False
 
-
 sock = None
 hpi = None
-
 
 
 def main():
     print("Starting AlphaBot2 program...")
     init()
-
+    '''
     sched = create_scheduler()
 
     t1 = Task(50, 2, task_read_from_socket, None) #20
@@ -62,7 +61,59 @@ def main():
     sched_periodic(sched, t4)
     sched_periodic(sched, t5)
     sched.run()
+    '''
+    times = []
+    for x in range(1000000):
+        t1 = cpp_utils.timer_monotonic()
+        task_read_from_socket(None)
+        t2 = cpp_utils.timer_monotonic()
+        time = t2 - t1
+        times.append(time)
+    avg("t1", times)
 
+    times = []
+    for x in range(1000000):
+        buff.push(97)
+        t1 = cpp_utils.timer_monotonic()
+        task_process_command(None)
+        t2 = cpp_utils.timer_monotonic()
+        time = t2 - t1
+        times.append(time)
+    avg("t2", times)
+
+    times = []
+    for x in range(1000000):
+        sh = create_scheduler()
+        t1 = cpp_utils.timer_monotonic()
+        task_check_collision_sensor(sh)
+        t2 = cpp_utils.timer_monotonic()
+        time = t2 - t1
+        times.append(time)
+    avg("t3", times)
+
+    times = []
+    for x in range(1000000):
+        events.push(1)
+        events.push(2)
+        t1 = cpp_utils.timer_monotonic()
+        task_aperiodic_task_server(None)
+        t2 = cpp_utils.timer_monotonic()
+        time = t2 - t1
+        times.append(time)
+    avg("t4", times)
+
+    times = []
+    for x in range(1000000):
+        t1 = cpp_utils.timer_monotonic()
+        task_rng_low_speed(None)
+        t2 = cpp_utils.timer_monotonic()
+        time = t2 - t1
+        times.append(time)
+    avg("t5", times)
+
+def avg(id, times):
+    print('{} max -> {}'.format(id, max(times)))
+    print('{} avg -> {}'.format(id, sum(times)/len(times)))
 
 def init():
     global hpi
